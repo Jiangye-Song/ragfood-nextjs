@@ -3,8 +3,7 @@ import { z } from 'zod'
 // Environment variable schema
 const envSchema = z.object({
   // Database configuration
-  VECTOR_DB_TYPE: z.enum(['chroma', 'upstash', 'simple']).default('simple'),
-  CHROMA_PATH: z.string().default('./chroma_db'),
+  VECTOR_DB_TYPE: z.enum(['upstash', 'simple']).default('simple'),
   UPSTASH_VECTOR_URL: z.string().optional(),
   UPSTASH_VECTOR_TOKEN: z.string().optional(),
 
@@ -31,7 +30,6 @@ function validateEnv() {
   try {
     return envSchema.parse({
       VECTOR_DB_TYPE: process.env.VECTOR_DB_TYPE,
-      CHROMA_PATH: process.env.CHROMA_PATH,
       UPSTASH_VECTOR_URL: process.env.UPSTASH_VECTOR_URL,
       UPSTASH_VECTOR_TOKEN: process.env.UPSTASH_VECTOR_TOKEN,
       EMBEDDING_PROVIDER: process.env.EMBEDDING_PROVIDER,

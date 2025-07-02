@@ -55,7 +55,7 @@ export interface RagQueryResponse {
 }
 
 // Provider types
-export type VectorDbType = 'chroma' | 'upstash'
+export type VectorDbType = 'simple' | 'upstash'
 export type EmbeddingProvider = 'ollama' | 'clarifai'
 export type LlmProvider = 'ollama' | 'groq'
 

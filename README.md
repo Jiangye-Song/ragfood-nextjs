@@ -51,15 +51,6 @@ LLM_PROVIDER=ollama
 ```
 ✅ Works immediately, no setup required
 
-### ChromaDB + Ollama (Advanced Local)
-```bash
-# Requires: pip install chromadb && chroma run
-VECTOR_DB_TYPE=chroma
-EMBEDDING_PROVIDER=ollama  
-LLM_PROVIDER=ollama
-```
-✅ Full vector database features
-
 ### Cloud Deployment (Production)
 ```bash
 # Requires API keys from Upstash, Clarifai, Groq
@@ -96,14 +87,14 @@ LLM_PROVIDER=groq
 ```
 
 ### Provider Architecture
-- **Database Layer**: ChromaDB ↔ Upstash Vector
+- **Database Layer**: Simple Vector DB ↔ Upstash Vector
 - **Embedding Layer**: Ollama ↔ Clarifai
 - **LLM Layer**: Ollama ↔ Groq
 - **Factory Pattern**: Environment-based provider switching
 
 ## 🚀 Deployment
 
-### Phase 2 - Vercel Cloud Deployment
+### Cloud Deployment (Vercel)
 
 1. **Set up cloud services:**
    - Create Upstash Vector database
@@ -133,7 +124,7 @@ LLM_PROVIDER=groq
 
 ### Switching Providers
 Change these environment variables to switch between local and cloud:
-- `VECTOR_DB_TYPE`: `chroma` | `upstash`
+- `VECTOR_DB_TYPE`: `simple` | `upstash`
 - `EMBEDDING_PROVIDER`: `ollama` | `clarifai`
 - `LLM_PROVIDER`: `ollama` | `groq`
 
@@ -162,15 +153,11 @@ Food items in `foods.json`:
    - Ensure Ollama is running: `ollama serve`
    - Check models are pulled: `ollama list`
 
-2. **ChromaDB Permission Errors**
-   - Check `CHROMA_PATH` directory permissions
-   - Try different path if needed
-
-3. **Rate Limiting (Cloud)**
+2. **Rate Limiting (Cloud)**
    - Use free tier responsibly
    - Implement retry logic if needed
 
-4. **Build Errors**
+3. **Build Errors**
    - Check TypeScript errors: `npm run build`
    - Verify all dependencies: `npm install`
 

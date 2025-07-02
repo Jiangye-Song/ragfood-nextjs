@@ -1,6 +1,6 @@
 import { Index } from '@upstash/vector'
-import { config, COLLECTION_NAME } from '../config'
-import { RagResult, FoodMetadata } from '../types'
+import { config } from '../config'
+import { RagResult } from '../types'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -118,120 +118,7 @@ class SimpleVectorDatabase implements VectorDatabase {
   }
 }
 
-// ChromaDB client and collection types
-interface ChromaClient {
-  getOrCreateCollection(config: {
-    name: string
-    embeddingFunction?: {
-      generate: (texts: string[]) => Promise<number[][]>
-    }
-  }): Promise<ChromaCollection>
-}
 
-interface ChromaCollection {
-  add(data: {
-    documents: string[]
-    embeddings: number[][]
-    ids: string[]
-  }): Promise<void>
-  query(params: {
-    queryEmbeddings: number[][]
-    nResults: number
-  }): Promise<{
-    documents: (string | null)[][]
-    ids: (string | null)[][]
-    distances?: (number | null)[][]
-    metadatas?: unknown[][]
-  }>
-  get(): Promise<{
-    ids: (string | null)[]
-  }>
-}
-
-// ChromaDB implementation (requires ChromaDB server running)
-class ChromaDatabase implements VectorDatabase {
-  private client: ChromaClient | null = null
-  private collection: ChromaCollection | null = null
-
-  async initialize(): Promise<void> {
-    try {
-      const { ChromaClient } = await import('chromadb')
-      
-      // Create ChromaClient (requires ChromaDB server running on localhost:8000)
-      this.client = new ChromaClient({
-        path: "http://localhost:8000"
-      })
-      
-      // Create a custom embedding function that will be a no-op
-      // since we handle embeddings externally
-      const customEmbeddingFunction = {
-        generate: async (texts: string[]) => {
-          // Return dummy embeddings - we'll provide real embeddings when adding documents
-          return texts.map(() => new Array(1024).fill(0)) // Use 1024 to match mxbai-embed-large
-        }
-      }
-      
-      // Create collection with custom embedding function
-      this.collection = await this.client.getOrCreateCollection({
-        name: COLLECTION_NAME,
-        embeddingFunction: customEmbeddingFunction,
-      })
-      
-      console.log('✅ ChromaDB initialized successfully')
-    } catch (error) {
-      console.error('❌ Failed to initialize ChromaDB:', error)
-      throw new Error(`ChromaDB initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
-  }
-
-  async addDocuments(documents: string[], embeddings: number[][], ids: string[]): Promise<void> {
-    if (!this.collection) {
-      throw new Error('ChromaDB not initialized')
-    }
-
-    await this.collection.add({
-      documents,
-      embeddings,
-      ids,
-    })
-  }
-
-  async query(queryEmbedding: number[], nResults: number): Promise<RagResult> {
-    if (!this.collection) {
-      throw new Error('ChromaDB not initialized')
-    }
-
-    const results = await this.collection.query({
-      queryEmbeddings: [queryEmbedding],
-      nResults,
-    })
-
-    // Type-safe handling of metadata
-    const safeMetadatas = results.metadatas?.[0]?.map(metadata => {
-      if (metadata === null || metadata === undefined) return null
-      if (typeof metadata === 'object' && metadata !== null) {
-        return metadata as FoodMetadata
-      }
-      return null
-    })
-
-    return {
-      documents: (results.documents[0] || []).filter((doc: string | null): doc is string => doc !== null),
-      ids: (results.ids[0] || []).filter((id: string | null): id is string => id !== null),
-      distances: results.distances?.[0]?.filter((dist: number | null): dist is number => dist !== null),
-      metadatas: safeMetadatas,
-    }
-  }
-
-  async getExistingIds(): Promise<string[]> {
-    if (!this.collection) {
-      throw new Error('ChromaDB not initialized')
-    }
-
-    const results = await this.collection.get()
-    return (results.ids || []).filter((id: string | null): id is string => id !== null)
-  }
-}
 
 // Upstash Vector implementation
 class UpstashDatabase implements VectorDatabase {
@@ -302,8 +189,6 @@ class UpstashDatabase implements VectorDatabase {
 // Factory function to create the appropriate database
 export function createVectorDatabase(): VectorDatabase {
   switch (config.VECTOR_DB_TYPE) {
-    case 'chroma':
-      return new ChromaDatabase()
     case 'upstash':
       return new UpstashDatabase()
     case 'simple':

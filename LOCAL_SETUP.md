@@ -10,8 +10,7 @@ This guide will help you set up the Food RAG (Retrieval-Augmented Generation) sy
 3. **Ollama** (for local AI) - Download from [ollama.ai](https://ollama.ai/)
 
 ### Optional Software
-4. **ChromaDB Server** (if using ChromaDB instead of simple vector DB)
-5. **VS Code** - Recommended IDE with TypeScript support
+4. **VS Code** - Recommended IDE with TypeScript support
 
 ## Setup Steps
 
@@ -79,45 +78,7 @@ LLM_MODEL=llama3.2
 - ✅ Good for development and testing
 
 **Cons:**
-- ❌ Not as feature-rich as ChromaDB
 - ❌ Limited to cosine similarity search
-
-### Option 2: ChromaDB with Local Server
-
-First install ChromaDB server:
-
-```powershell
-# Install ChromaDB server
-pip install chromadb
-
-# Start ChromaDB server (run in separate terminal)
-chroma run --host localhost --port 8000
-```
-
-Update `.env.local`:
-
-```bash
-# ChromaDB with local server
-VECTOR_DB_TYPE=chroma
-EMBEDDING_PROVIDER=ollama
-LLM_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-EMBED_MODEL=mxbai-embed-large
-LLM_MODEL=llama3.2
-CHROMA_PATH=./chroma_db
-
-# Optional: Custom ChromaDB server URL
-# CHROMA_SERVER_URL=http://localhost:8000
-```
-
-**Pros:**
-- ✅ Full ChromaDB features
-- ✅ Persistent storage
-- ✅ Advanced vector operations
-
-**Cons:**
-- ❌ Requires Python and pip
-- ❌ Need to run separate server process
 
 ### Option 3: Cloud Providers (For Production)
 
