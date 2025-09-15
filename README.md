@@ -1,5 +1,8 @@
 # 🍽️ Food RAG System
 
+**This project is unusable and deprecated.**
+**Please check [Food Rag Web](https://github.com/Jiangye-Song/food-rag-web)**
+
 A Next.js application that implements Retrieval-Augmented Generation (RAG) for food-related queries. Features local development with Ollama and multiple deployment options for different environments.
 
 ## 🚀 Quick Start
